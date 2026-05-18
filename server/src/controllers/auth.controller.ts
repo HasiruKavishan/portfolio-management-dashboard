@@ -36,31 +36,44 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 };
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "All fields required" });
+        if (!email || !password) {
+            return res.status(400).json({ message: "All fields required" });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        const token = jwt.sign({ userId: user._id }, env.JWT_SECRET as string, { expiresIn: "1d" });
+
+        return res.json({ message: "Login successful", token });
+    } catch (error) {
+        next(error);
     }
+};
 
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+export const logout = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        });
+        return res.json({ success: true, message: "Logged out successfully" });
+    } catch (error) {
+        next(error);
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const token = jwt.sign({ userId: user._id }, env.JWT_SECRET as string, { expiresIn: "1d" });
-
-    return res.json({ message: "Login successful", token });
-  } catch (error) {
-    next(error);
-  }
 };
 
 
