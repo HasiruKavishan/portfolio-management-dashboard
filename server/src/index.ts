@@ -1,17 +1,27 @@
 import express from "express";
-import userRoutes from "./routes/user.routes";
+import dotenv from "dotenv";
+import cors from "cors";
+import connectDB from "./config/db";
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Hello from Express + TypeScript 🚀");
+  res.json({ message: "Server running 🚀" });
 });
 
-app.use("/api/users", userRoutes);
+const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer();
