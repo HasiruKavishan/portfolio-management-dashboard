@@ -4,7 +4,11 @@ import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { prisma } from "../config/prisma";
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { name, email, password } = req.body;
 
@@ -32,7 +36,11 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     }
 };
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { email, password } = req.body;
 
@@ -65,7 +73,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
-export const logout = (req: Request, res: Response, next: NextFunction) => {
+export const logout = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,

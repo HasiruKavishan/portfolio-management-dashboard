@@ -5,6 +5,9 @@ import cookieParser from "cookie-parser";
 import { authMiddleware } from "./middleware/auth.middleware";
 import authRoutes from "./routes/auth.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
+import portfolioRoutes from "./routes/portfolio.routes";
+import transactionRoutes from "./routes/transaction.routes";
+import assetRoutes from "./routes/asset.routes";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +24,12 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/portfolios",authMiddleware, portfolioRoutes);
+
+app.use("/api/transactions",authMiddleware, transactionRoutes);
+
+app.use("/api/assets",authMiddleware, assetRoutes);
 
 app.get("/api/test", authMiddleware, (req, res) => {
   res.json({ message: "You are authenticated..." });
