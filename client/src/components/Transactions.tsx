@@ -1,19 +1,6 @@
-import { useNavigate, Link } from 'react-router-dom';
-import { LayoutDashboard, PieChart, LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Transactions() {
-    const navigate = useNavigate();
-
-    const handleLogout = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        try {
-            await fetch('/api/auth/logout', { method: 'POST' });
-        } catch (err) {
-            console.error('Logout failed:', err);
-        } finally {
-            navigate('/login');
-        }
-    };
 
     const transactions = [
         { id: 1, type: 'Buy', asset: 'AAPL', shares: 50, price: 150, date: '2024-01-15' },
@@ -27,30 +14,6 @@ export default function Transactions() {
     return (
         <div className="h-screen overflow-hidden bg-slate-950 flex font-sans text-slate-300">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-slate-800 bg-slate-950/50 backdrop-blur-xl hidden md:flex flex-col relative z-20">
-                <div className="p-6 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                        <LayoutDashboard className="w-5 h-5" />
-                    </div>
-                    <span className="text-xl font-bold text-white tracking-tight">PortoDash</span>
-                </div>
-                <nav className="flex-1 px-4 py-8 space-y-2">
-                    <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 bg-indigo-500/10 text-indigo-400 rounded-xl transition-colors font-medium">
-                        <LayoutDashboard className="w-5 h-5" /> Dashboard
-                    </Link>
-                    <Link to="/transactions" className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800/50 rounded-xl transition-colors font-medium hover:text-white">
-                        <PieChart className="w-5 h-5" /> Transactions
-                    </Link>
-                </nav>
-                <div className="p-4">
-                    <button
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-3 px-4 py-3 hover:bg-red-500/10 hover:text-red-400 rounded-xl transition-colors font-medium"
-                    >
-                        <LogOut className="w-5 h-5" /> Sign Out
-                    </button>
-                </div>
-            </aside>
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto p-8 max-w-7xl mx-auto space-y-8">
