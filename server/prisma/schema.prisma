@@ -30,6 +30,9 @@ model Portfolio {
 
 model Asset {
   id           String           @id @default(uuid())
+  name         String
+  symbol       String
+  currentPrice Decimal          @db.Decimal(18, 8)
   portfolios   PortfolioAsset[]
   transactions Transaction[]
 

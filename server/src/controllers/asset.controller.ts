@@ -84,3 +84,75 @@ export const updateInvestment = async (
     next(error);
   }
 };
+
+export const bulkCreateAssets = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const assets = req.body;
+
+    if (!Array.isArray(assets)) {
+      return res.status(400).json({
+        message: "Assets must be an array",
+      });
+    }
+
+    const result = await prisma.asset.createMany({
+      data: assets,
+      skipDuplicates: true,
+    });
+
+    return res.status(201).json({
+      message: "Assets inserted successfully",
+      count: result.count,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllAssets = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const assets = await prisma.asset.findMany();
+    res.json(assets);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAssetById = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const assetId = req.params.assetId as string;
+    const asset = await prisma.asset.findUnique({
+      where: {
+        id: assetId,
+      },
+    });
+    res.json(asset);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteAllAssets = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await prisma.asset.deleteMany();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
