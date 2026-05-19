@@ -51,6 +51,9 @@ export const getUserPortfolios = async (
             asset: true,
           },
         },
+        transactions: {
+          orderBy: { id: "desc" },
+        },
       },
     });
 
