@@ -2,7 +2,7 @@
 
 export const api = {
   async getPortfolio() {
-    const response = await fetch('api/portfolios', {
+    const response = await fetch('/api/portfolios', {
       credentials: 'include',
     });
 
@@ -14,7 +14,7 @@ export const api = {
   },
 
   async getAssets() {
-    const response = await fetch('api/assets', {
+    const response = await fetch('/api/assets', {
       credentials: 'include',
     });
 

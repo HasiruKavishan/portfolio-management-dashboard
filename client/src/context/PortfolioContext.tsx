@@ -9,7 +9,7 @@ import {
 import { api } from '../services/api';
 
 export interface Asset {
-  id: number;
+  id: string;
   name: string;
   symbol: string;
   type: string;
@@ -20,7 +20,7 @@ export interface Asset {
 }
 
 export interface Portfolio {
-  id: number;
+  id: string;
   userId: string;
   portfolioName: string;
   assets: Asset[];
@@ -30,6 +30,7 @@ interface PortfolioContextType {
   assets: Asset[];
   loading: boolean;
   portfolios: Portfolio[];
+  setPortfolios: React.Dispatch<React.SetStateAction<Portfolio[]>>;
   fetchPortfolio: () => Promise<void>;
 }
 
@@ -54,21 +55,7 @@ export function PortfolioProvider({
 
       console.log(data);
 
-      setPortfolios(data.portfolios || []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAssets = async () => {
-    try {
-      setLoading(true);
-
-      const data = await api.getAssets();
-
-      setAssets(data.assets || []);
+      setPortfolios(data || []);
     } catch (error) {
       console.error(error);
     } finally {
@@ -78,7 +65,6 @@ export function PortfolioProvider({
 
   useEffect(() => {
     fetchPortfolio();
-    fetchAssets();
   }, []);
 
   return (
@@ -87,6 +73,7 @@ export function PortfolioProvider({
         assets,
         loading,
         portfolios,
+        setPortfolios,
         fetchPortfolio,
       }}
     >
