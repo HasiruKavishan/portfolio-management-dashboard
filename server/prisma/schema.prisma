@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String      @id @default(uuid())
+  name         String
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  portfolios   Portfolio[]
+
+  @@map("users")
+}
+
+model Portfolio {
+  id            String           @id @default(uuid())
+  userId        String           @map("user_id")
+  portfolioName String           @map("portfolio_name")
+  user          User             @relation(fields: [userId], references: [id])
+  assets        PortfolioAsset[]
+  transactions  Transaction[]
+
+  @@map("portfolios")
+}
+
+model Asset {
+  id           String           @id @default(uuid())
+  portfolios   PortfolioAsset[]
+  transactions Transaction[]
+
+  @@map("assets")
+}
+
+model PortfolioAsset {
+  id          String    @id @default(uuid())
+  portfolioId String    @map("portfolio_id")
+  assetId     String    @map("asset_id")
+  quantity    Decimal
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  asset       Asset     @relation(fields: [assetId], references: [id])
+
+  @@map("portfolio_assets")
+}
+
+model Transaction {
+  id              String    @id @default(uuid())
+  portfolioId     String    @map("portfolio_id")
+  assetId         String    @map("asset_id")
+  transactionType String    @map("transaction_type")
+  quantity        Decimal
+  portfolio       Portfolio @relation(fields: [portfolioId], references: [id])
+  asset           Asset     @relation(fields: [assetId], references: [id])
+
+  @@map("transactions")
+}

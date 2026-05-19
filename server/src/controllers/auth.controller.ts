@@ -1,34 +1,31 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
 import { env } from "../config/env";
+import { prisma } from "../config/prisma";
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
-            return res.json({ message: "All fields required" });
+            return res.status(400).json({ message: "All fields required" });
         }
 
-        const existingUser = await User.findOne({ email });
-
+        const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-            return res.json({ message: "User already exists" });
+            return res.status(400).json({ message: "User already exists" });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const passwordHash = await bcrypt.hash(password, 10);
 
-        const user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
+        const user = await prisma.user.create({
+            data: { name, email, passwordHash },
         });
 
-        return res.json({
+        return res.status(201).json({
             message: "User created successfully",
-            userId: user._id,
+            userId: user.id,
         });
     } catch (error) {
         next(error);
@@ -43,25 +40,23 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             return res.status(400).json({ message: "All fields required" });
         }
 
-        const user = await User.findOne({ email });
-
+        const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ userId: user._id }, env.JWT_SECRET as string, { expiresIn: "1d" });
+        const token = jwt.sign({ userId: user.id }, env.JWT_SECRET as string, { expiresIn: "1d" });
 
         res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         return res.json({ message: "Login successful", token });
@@ -82,5 +77,3 @@ export const logout = (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 };
-
-
