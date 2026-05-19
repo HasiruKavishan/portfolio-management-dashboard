@@ -19,6 +19,7 @@ export const createTransaction = async (
       assetId,
       transactionType,
       quantity,
+      pricePerShare
     } = req.body;
 
     const portfolio = await prisma.portfolio.findFirst({
@@ -40,6 +41,7 @@ export const createTransaction = async (
         assetId,
         transactionType,
         quantity,
+        pricePerShare,
       },
     });
 

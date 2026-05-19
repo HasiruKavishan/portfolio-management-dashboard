@@ -1,0 +1,18 @@
+[
+  { "name": "Apple", "symbol": "AAPL", "currentPrice": 175.50 },
+  { "name": "Microsoft", "symbol": "MSFT", "currentPrice": 330.40 },
+  { "name": "Tesla", "symbol": "TSLA", "currentPrice": 195.50 },
+  { "name": "Amazon", "symbol": "AMZN", "currentPrice": 145.20 },
+  { "name": "Google", "symbol": "GOOGL", "currentPrice": 140.80 },
+  { "name": "Meta", "symbol": "META", "currentPrice": 485.10 },
+  { "name": "Nvidia", "symbol": "NVDA", "currentPrice": 910.25 },
+  { "name": "Netflix", "symbol": "NFLX", "currentPrice": 600.30 },
+  { "name": "Intel", "symbol": "INTC", "currentPrice": 38.75 },
+  { "name": "AMD", "symbol": "AMD", "currentPrice": 165.90 },
+
+  { "name": "US 10Y", "symbol": "US10Y", "currentPrice": 102.10 },
+  { "name": "US 5Y", "symbol": "US5Y", "currentPrice": 101.35 },
+  { "name": "US 2Y", "symbol": "US2Y", "currentPrice": 100.85 },
+  { "name": "Corp Bond", "symbol": "CBOND", "currentPrice": 98.40 },
+  { "name": "High Yield", "symbol": "HYG", "currentPrice": 75.60 }
+]
