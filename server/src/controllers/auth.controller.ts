@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { prisma } from "../config/prisma";
+import { AuthRequest } from "../middleware/auth.middleware";
 
 export const register = async (
     req: Request,
@@ -89,3 +90,30 @@ export const logout = (
         next(error);
     }
 };
+
+export const me = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+    const userId = req.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.json({
+      user,
+    });
+  } catch (error) {
+    next(error)
+  }
+}
