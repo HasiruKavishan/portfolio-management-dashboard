@@ -19,11 +19,21 @@ export interface Asset {
   change: number;
 }
 
+export interface Transaction {
+  id: string;
+  portfolioId: string;
+  assetId: string;
+  transactionType: 'BUY' | 'SELL';
+  quantity: number;
+  pricePerShare: number;
+}
+
 export interface Portfolio {
   id: string;
   userId: string;
   portfolioName: string;
   assets: Asset[];
+  transactions: Transaction[];
 }
 
 interface PortfolioContextType {
@@ -58,8 +68,6 @@ export function PortfolioProvider({
       setLoading(true);
 
       const data = await api.getAssets();
-
-      console.log('Assets:', data);
 
       setAssets(data || []);
     } catch (error) {

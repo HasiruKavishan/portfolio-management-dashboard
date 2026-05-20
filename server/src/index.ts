@@ -29,7 +29,7 @@ app.use("/api/portfolios",authMiddleware, portfolioRoutes);
 
 app.use("/api/transactions",authMiddleware, transactionRoutes);
 
-app.use("/api/assets",authMiddleware, assetRoutes);
+app.use("/api/assets", assetRoutes);
 
 app.get("/api/test", authMiddleware, (req, res) => {
   res.json({ message: "You are authenticated..." });

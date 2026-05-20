@@ -2,6 +2,7 @@ import { Wallet, TrendingUp, TrendingDown, PieChart, Plus, X } from "lucide-reac
 import { useState, Activity } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePortfolio } from "../context/PortfolioContext";
+import { TradeModal } from "./TradeModal";
 
 interface Asset {
     id: number;
@@ -22,6 +23,9 @@ export default function DashboardHome() {
     const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
     const [portfolioName, setPortfolioName] = useState("");
     const [creatingPortfolio, setCreatingPortfolio] = useState(false);
+
+    const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+    const [selectedPortfolio, setSelectedPortfolio] = useState<any>(null);
 
     const [assets, setAssets] = useState<Asset[]>([
         { id: 1, name: 'Apple Inc.', symbol: 'AAPL', type: 'Stock', shares: 150, purchasePrice: 145.20, currentPrice: 175.50, change: 2.1 },
@@ -77,8 +81,6 @@ export default function DashboardHome() {
 
     const handleCreatePortfolio = async () => {
         if (!portfolioName.trim()) return;
-
-        console.log(portfolioName)
 
         try {
             setCreatingPortfolio(true);
@@ -150,47 +152,37 @@ export default function DashboardHome() {
                                 No portfolios found
                             </div>
                         ) : (
-                            <div className="space-y-3">
-                                {portfolios?.map((portfolio: any) => (
-                                    <div
-                                        key={portfolio.id}
-                                        className="group bg-slate-800/40 hover:bg-slate-800/70 border border-slate-700/50 rounded-2xl p-4 cursor-pointer transition-all duration-300"
-                                    >
-                                        <div className="flex items-start justify-between">
-                                            <div>
-                                                <h4 className="text-white font-semibold group-hover:text-indigo-300 transition-colors">
+                            <div>
+                                <div className="space-y-3">
+                                    {portfolios?.map((portfolio: any) => (
+                                        <div
+                                            key={portfolio.id}
+                                            className="group bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4"
+                                        >
+                                            <div className="flex justify-between">
+                                                <h4 className="text-white font-semibold">
                                                     {portfolio.portfolioName}
                                                 </h4>
-                                            </div>
 
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                                                <Wallet className="w-5 h-5" />
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-4 flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xs text-slate-500">
-                                                    Transactions
-                                                </p>
-
-                                                <p className="text-sm font-medium text-white">
-                                                    {portfolio.transactions?.length || 0}
-                                                </p>
-                                            </div>
-
-                                            <div className="text-right">
-                                                <p className="text-xs text-slate-500">
-                                                    Total Value
-                                                </p>
-
-                                                <p className="text-sm font-bold text-emerald-400">
-                                                    $ {portfolio.totalValue || 0}
-                                                </p>
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedPortfolio(portfolio);
+                                                        setIsTradeModalOpen(true);
+                                                    }}
+                                                    className="px-3 py-1 text-xs rounded-lg bg-indigo-500/20 text-indigo-300"
+                                                >
+                                                    Trade
+                                                </button>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+
+                                <TradeModal
+                                    isTradeModalOpen={isTradeModalOpen}
+                                    onClose={() => setIsTradeModalOpen(false)}
+                                    portfolio={selectedPortfolio}
+                                />
                             </div>
                         )}
                     </div>
