@@ -26,6 +26,12 @@ export interface Transaction {
   transactionType: 'BUY' | 'SELL';
   quantity: number;
   pricePerShare: number;
+  asset?: {
+    id: string;
+    name: string;
+    symbol: string;
+    currentPrice: number;
+  };
 }
 
 export interface Portfolio {
@@ -38,13 +44,17 @@ export interface Portfolio {
 
 interface PortfolioContextType {
   assets: Asset[];
-  loading: boolean;
   portfolios: Portfolio[];
+  transactions: Transaction[];
+  selectedPortfolio: Portfolio | null;
+  loading: boolean;
 
   setPortfolios: React.Dispatch<React.SetStateAction<Portfolio[]>>;
+  setSelectedPortfolio: React.Dispatch<React.SetStateAction<Portfolio | null>>;
 
   fetchAssets: () => Promise<void>;
   fetchPortfolio: () => Promise<void>;
+  fetchTransactions: (portfolioId: string) => Promise<void>;
 
   clearPortfolio: () => void;
 }
@@ -60,15 +70,17 @@ export function PortfolioProvider({
 }) {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [selectedPortfolio, setSelectedPortfolio] =
+    useState<Portfolio | null>(null);
+
   const [loading, setLoading] = useState(false);
 
-  // Fetch all available assets
   const fetchAssets = async () => {
     try {
       setLoading(true);
 
       const data = await api.getAssets();
-
       setAssets(data || []);
     } catch (error) {
       console.error(error);
@@ -78,14 +90,11 @@ export function PortfolioProvider({
     }
   };
 
-  // Fetch user portfolios (Auth required)
   const fetchPortfolio = async () => {
     try {
       setLoading(true);
 
       const data = await api.getPortfolio();
-
-      console.log('Portfolio Data:', data);
 
       setPortfolios(data || []);
     } catch (error) {
@@ -96,24 +105,69 @@ export function PortfolioProvider({
     }
   };
 
-  const clearPortfolio = () => {
-    setPortfolios([]);
+  const fetchTransactions = async (portfolioId: string) => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `/api/transactions/portfolio/${portfolioId}`
+      );
+
+      if (!res.ok) throw new Error('Failed to fetch transactions');
+
+      const data = await res.json();
+
+      setTransactions(data || []);
+    } catch (err) {
+      console.error(err);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Load assets when app start
+  // Clear state
+  const clearPortfolio = () => {
+    setPortfolios([]);
+    setTransactions([]);
+    setSelectedPortfolio(null);
+  };
+
+  // Load assets
   useEffect(() => {
     fetchAssets();
   }, []);
+
+  // Auto select the first portfolio
+  useEffect(() => {
+    if (portfolios.length > 0 && !selectedPortfolio) {
+      setSelectedPortfolio(portfolios[0]);
+    }
+  }, [portfolios]);
+
+  // Auto fetch transactions
+  useEffect(() => {
+    if (selectedPortfolio?.id) {
+      fetchTransactions(selectedPortfolio.id);
+    }
+  }, [selectedPortfolio]);
 
   return (
     <PortfolioContext.Provider
       value={{
         assets,
-        loading,
         portfolios,
+        transactions,
+        selectedPortfolio,
+        loading,
+
         setPortfolios,
+        setSelectedPortfolio,
+
         fetchAssets,
         fetchPortfolio,
+        fetchTransactions,
+
         clearPortfolio,
       }}
     >

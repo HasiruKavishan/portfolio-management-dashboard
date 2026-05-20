@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { usePortfolio } from '../context/PortfolioContext';
+import { usePortfolio, type Portfolio } from '../context/PortfolioContext';
 
 interface Props {
     isTradeModalOpen: boolean;
     onClose: () => void;
-    portfolio: any;
+    portfolio: Portfolio;
 }
 
 export const TradeModal = ({

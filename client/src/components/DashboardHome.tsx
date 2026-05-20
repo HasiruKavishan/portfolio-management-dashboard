@@ -1,8 +1,9 @@
 import { Wallet, TrendingUp, TrendingDown, PieChart, Plus, X } from "lucide-react";
-import { useState, Activity } from "react";
+import { useState, Activity, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePortfolio } from "../context/PortfolioContext";
+import { usePortfolio, type Portfolio } from "../context/PortfolioContext";
 import { TradeModal } from "./TradeModal";
+import Transactions from "./Transactions";
 
 interface Asset {
     id: number;
@@ -18,14 +19,20 @@ interface Asset {
 export default function DashboardHome() {
     const navigate = useNavigate();
 
-    const { portfolios, loading, setPortfolios } = usePortfolio();
+    const { portfolios,
+        loading,
+        setPortfolios,
+        selectedPortfolio,
+        setSelectedPortfolio
+    } = usePortfolio();
+
+    console.log(usePortfolio())
 
     const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
     const [portfolioName, setPortfolioName] = useState("");
     const [creatingPortfolio, setCreatingPortfolio] = useState(false);
 
     const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
-    const [selectedPortfolio, setSelectedPortfolio] = useState<any>(null);
 
     const [assets, setAssets] = useState<Asset[]>([
         { id: 1, name: 'Apple Inc.', symbol: 'AAPL', type: 'Stock', shares: 150, purchasePrice: 145.20, currentPrice: 175.50, change: 2.1 },
@@ -117,6 +124,12 @@ export default function DashboardHome() {
         }
     };
 
+    useEffect(() => {
+        if (portfolios.length > 0) {
+            setSelectedPortfolio(portfolios[0]);
+        }
+    }, [portfolios]);
+
     return (
         <div className="p-8 mx-auto relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -157,7 +170,11 @@ export default function DashboardHome() {
                                     {portfolios?.map((portfolio: any) => (
                                         <div
                                             key={portfolio.id}
-                                            className="group bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4"
+                                            onClick={() => setSelectedPortfolio(portfolio)}
+                                            className={`group border rounded-2xl p-4 cursor-pointer transition-all duration-300 ${selectedPortfolio?.id === portfolio.id
+                                                    ? 'bg-indigo-500/20 border-indigo-500/60 shadow-lg shadow-indigo-500/10'
+                                                    : 'bg-slate-800/40 border-slate-700/50 hover:bg-slate-800/70'
+                                                }`}
                                         >
                                             <div className="flex justify-between">
                                                 <h4 className="text-white font-semibold">
@@ -319,78 +336,7 @@ export default function DashboardHome() {
                         </div>
                     </div>
 
-                    {/* Asset Table */}
-                    <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
-
-                        <div className="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-white tracking-tight">
-                                Assets
-                            </h3>
-                        </div>
-
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-
-                                <thead>
-                                    <tr className="bg-slate-950/40 text-slate-400 text-xs uppercase tracking-wider">
-                                        <th className="px-6 py-4 font-semibold">Asset</th>
-                                        <th className="px-6 py-4 font-semibold">Type</th>
-                                        <th className="px-6 py-4 font-semibold text-right">Current Price</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody className="divide-y divide-slate-800/50">
-
-                                    {assets.length === 0 ? (
-                                        <tr>
-                                            <td
-                                                colSpan={8}
-                                                className="px-6 py-8 text-center text-slate-500"
-                                            >
-                                                No assets found.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        assets.map((asset) => (
-                                            <tr
-                                                key={asset.id}
-                                                className="hover:bg-slate-800/30 transition-colors group"
-                                            >
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-white shadow-sm border border-slate-700/50">
-                                                            {asset.symbol.substring(0, 2)}
-                                                        </div>
-
-                                                        <div>
-                                                            <div className="font-bold text-white group-hover:text-indigo-300 transition-colors">
-                                                                {asset.symbol}
-                                                            </div>
-
-                                                            <div className="text-xs text-slate-400">
-                                                                {asset.name}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-
-                                                <td className="px-6 py-4">
-                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-                                                        {asset.type}
-                                                    </span>
-                                                </td>
-
-                                                <td className="px-6 py-4 text-right font-medium text-white">
-                                                    ${asset.currentPrice}
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-
-                            </table>
-                        </div>
-                    </div>
+                    <Transactions/>
 
                 </div>
 
