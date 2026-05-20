@@ -21,6 +21,13 @@ export default function Transactions() {
             currency: "USD",
         }).format(value);
 
+    // Detect changes
+    const hasChanges =
+        editingTx &&
+        (Number(editingTx.quantity) !== quantity ||
+            Number(editingTx.pricePerShare) !== price ||
+            editingTx.transactionType !== type);
+
     // Open edit modal
     const openEdit = (tx: any) => {
         setEditingTx(tx);
@@ -83,17 +90,14 @@ export default function Transactions() {
                                 const priceVal = Number(tx.pricePerShare);
 
                                 return (
-                                    <tr
-                                        key={tx.id}
-                                        className="hover:bg-slate-800/30 transition-colors"
-                                    >
+                                    <tr key={tx.id} className="hover:bg-slate-800/30 transition-colors">
 
                                         {/* TYPE */}
                                         <td className="px-6 py-4">
                                             <span
                                                 className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${tx.transactionType === "BUY"
-                                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                    : "bg-red-500/10 text-red-400 border-red-500/20"
+                                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                        : "bg-red-500/10 text-red-400 border-red-500/20"
                                                     }`}
                                             >
                                                 {tx.transactionType}
@@ -147,18 +151,17 @@ export default function Transactions() {
                         </h2>
 
                         {/* TYPE */}
-
                         <div className="space-y-2">
-                            <label className="text-xs text-slate-400">Transaction Type</label>
+                            <label className="text-xs text-slate-400">
+                                Transaction Type
+                            </label>
 
                             <div className="flex gap-6">
 
-                                {/* BUY */}
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
                                         name="transactionType"
-                                        value="BUY"
                                         checked={type === "BUY"}
                                         onChange={() => setType("BUY")}
                                         className="accent-emerald-500"
@@ -166,12 +169,10 @@ export default function Transactions() {
                                     <span className="text-emerald-400 font-medium">BUY</span>
                                 </label>
 
-                                {/* SELL */}
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
                                         name="transactionType"
-                                        value="SELL"
                                         checked={type === "SELL"}
                                         onChange={() => setType("SELL")}
                                         className="accent-red-500"
@@ -186,9 +187,7 @@ export default function Transactions() {
                         <input
                             type="number"
                             value={quantity}
-                            onChange={(e) =>
-                                setQuantity(Number(e.target.value))
-                            }
+                            onChange={(e) => setQuantity(Number(e.target.value))}
                             className="w-full bg-slate-800 p-2 rounded text-white"
                             placeholder="Quantity"
                         />
@@ -197,9 +196,7 @@ export default function Transactions() {
                         <input
                             type="number"
                             value={price}
-                            onChange={(e) =>
-                                setPrice(Number(e.target.value))
-                            }
+                            onChange={(e) => setPrice(Number(e.target.value))}
                             className="w-full bg-slate-800 p-2 rounded text-white"
                             placeholder="Price"
                         />
@@ -215,7 +212,12 @@ export default function Transactions() {
 
                             <button
                                 onClick={handleUpdateTransaction}
-                                className="px-3 py-1 rounded bg-indigo-500 text-white"
+                                disabled={!hasChanges}
+                                className={`px-3 py-1 rounded text-white transition
+                                    ${hasChanges
+                                        ? "bg-indigo-500 hover:bg-indigo-600"
+                                        : "bg-slate-700 opacity-50 cursor-not-allowed"
+                                    }`}
                             >
                                 Save
                             </button>
