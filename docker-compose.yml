@@ -3,14 +3,12 @@ services:
     image: postgres:16
     container_name: postgres_db
     restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: portfolio_db
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./server/.env
 
   server:
     build: ./server
@@ -20,9 +18,6 @@ services:
       - "5000:5000"
     depends_on:
       - postgres
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/portfolio_db?schema=public
-      - PORT=5000
     env_file:
       - ./server/.env
 

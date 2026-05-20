@@ -5,9 +5,14 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": [
+      "node",
+      "jest"
+    ]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "src/tests/**/*"
   ]
 }
