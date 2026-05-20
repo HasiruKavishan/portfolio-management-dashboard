@@ -37,23 +37,11 @@ export interface Portfolio {
   transactions: Transaction[];
 }
 
-export interface PortfolioSummaryAsset {
-  assetId: string;
-  symbol: string;
-  name: string;
-  quantity: number;
-  avgBuyPrice: number;
-  currentPrice: number;
-  value: number;
-  unrealizedPnL: number;
-}
-
 export interface PortfolioSummary {
   totalValue: number;
   totalCost: number;
   totalPnL: number;
   roi: number;
-  assets: PortfolioSummaryAsset[];
 }
 
 interface PortfolioContextType {
@@ -92,10 +80,7 @@ export function PortfolioProvider({
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>(
-    []
-  );
-
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] =
     useState<Portfolio | null>(null);
 
@@ -226,6 +211,17 @@ export function PortfolioProvider({
       fetchSummary(selectedPortfolio.id);
     }
   }, [selectedPortfolio]);
+
+  // ✅ NEW: Refresh assets when user comes back to tab
+  useEffect(() => {
+    const onFocus = () => {
+      fetchAssets();
+    };
+
+    window.addEventListener('focus', onFocus);
+
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
 
   return (
     <PortfolioContext.Provider
