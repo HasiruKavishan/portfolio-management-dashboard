@@ -1,7 +1,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useState,
   ReactNode,
 } from 'react';
@@ -32,20 +31,21 @@ interface PortfolioContextType {
   portfolios: Portfolio[];
   setPortfolios: React.Dispatch<React.SetStateAction<Portfolio[]>>;
   fetchPortfolio: () => Promise<void>;
+  clearPortfolio: () => void;
 }
 
-const PortfolioContext = createContext<PortfolioContextType | undefined>(
-  undefined
-);
+const PortfolioContext = createContext<
+  PortfolioContextType | undefined
+>(undefined);
 
 export function PortfolioProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [assets, setAssets] = useState<Asset[]>([]);
+  const [assets] = useState<Asset[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchPortfolio = async () => {
     try {
@@ -53,19 +53,21 @@ export function PortfolioProvider({
 
       const data = await api.getPortfolio();
 
-      console.log(data);
+      console.log('Portfolio Data:', data);
 
       setPortfolios(data || []);
     } catch (error) {
       console.error(error);
+
+      setPortfolios([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPortfolio();
-  }, []);
+  const clearPortfolio = () => {
+    setPortfolios([]);
+  };
 
   return (
     <PortfolioContext.Provider
@@ -75,6 +77,7 @@ export function PortfolioProvider({
         portfolios,
         setPortfolios,
         fetchPortfolio,
+        clearPortfolio,
       }}
     >
       {children}

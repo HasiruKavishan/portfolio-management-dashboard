@@ -260,7 +260,7 @@ export default function DashboardHome() {
                                 </div>
 
                                 <div className="p-3 bg-fuchsia-500/10 rounded-2xl text-fuchsia-400">
-                                    <Activity className="w-6 h-6" />
+                                    <Activity className="w-4 h-4" />
                                 </div>
                             </div>
 

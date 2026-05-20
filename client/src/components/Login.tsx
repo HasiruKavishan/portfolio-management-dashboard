@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, Lock, ArrowRight, Activity } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -8,6 +9,8 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    const { fetchPortfolio } = usePortfolio();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -23,6 +26,7 @@ export default function Login() {
             const data = await res.json();
 
             if (res.ok) {
+                await fetchPortfolio();
                 navigate('/dashboard');
             } else {
                 setError(data.message || 'Login failed');
