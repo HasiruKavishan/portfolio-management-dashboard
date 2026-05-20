@@ -114,12 +114,6 @@ export default function DashboardHome() {
                                         </div>
                                     ))}
                                 </div>
-
-                                <TradeModal
-                                    isTradeModalOpen={isTradeModalOpen}
-                                    onClose={() => setIsTradeModalOpen(false)}
-                                    portfolio={selectedPortfolio}
-                                />
                             </div>
                         )}
                     </div>
@@ -129,11 +123,17 @@ export default function DashboardHome() {
                 <div className="lg:col-span-9 space-y-8">
 
                     {/* Portfolio Performance Summary */}
-                    <Summary/>
+                    <Summary />
 
                     <Transactions />
 
                 </div>
+
+                <TradeModal
+                    isTradeModalOpen={isTradeModalOpen}
+                    onClose={() => setIsTradeModalOpen(false)}
+                    portfolio={selectedPortfolio}
+                />
 
                 {/* Portfolio Modal */}
                 {isPortfolioModalOpen && (
