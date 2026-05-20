@@ -5,7 +5,8 @@ import {
     Bell,
     Search,
     LogOut,
-    Briefcase
+    Briefcase,
+    ChartCandlestick
 } from 'lucide-react';
 import { useNavigate, Link, Outlet } from 'react-router-dom';
 
@@ -53,6 +54,10 @@ export default function Dashboard() {
                     <Link to="/dashboard/transactions" className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800/50 rounded-xl transition-colors font-medium hover:text-white">
                         <Wallet className="w-5 h-5" />
                         Transactions
+                    </Link>
+                    <Link to="/dashboard/assets" className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800/50 rounded-xl transition-colors font-medium hover:text-white">
+                        <ChartCandlestick className="w-5 h-5" />
+                        Assets
                     </Link>
                 </nav>
 

@@ -255,7 +255,7 @@ export default function DashboardHome() {
                                     </p>
 
                                     <h3 className="text-3xl font-extrabold text-white tracking-tight">
-                                        ${portfolioSummary.dayGain}
+                                        ${portfolioSummary.dayGain.toFixed(2)}
                                     </h3>
                                 </div>
 

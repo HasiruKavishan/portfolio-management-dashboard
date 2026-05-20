@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useState,
   ReactNode,
 } from 'react';
@@ -29,8 +30,12 @@ interface PortfolioContextType {
   assets: Asset[];
   loading: boolean;
   portfolios: Portfolio[];
+
   setPortfolios: React.Dispatch<React.SetStateAction<Portfolio[]>>;
+
+  fetchAssets: () => Promise<void>;
   fetchPortfolio: () => Promise<void>;
+
   clearPortfolio: () => void;
 }
 
@@ -43,10 +48,31 @@ export function PortfolioProvider({
 }: {
   children: ReactNode;
 }) {
-  const [assets] = useState<Asset[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(false);
 
+  
+  // Fetch all available assets
+  const fetchAssets = async () => {
+    try {
+      setLoading(true);
+
+      const data = await api.getAssets();
+
+      console.log('Assets:', data);
+
+      setAssets(data || []);
+    } catch (error) {
+      console.error(error);
+      setAssets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+  // Fetch user portfolios (Auth required)
   const fetchPortfolio = async () => {
     try {
       setLoading(true);
@@ -58,7 +84,6 @@ export function PortfolioProvider({
       setPortfolios(data || []);
     } catch (error) {
       console.error(error);
-
       setPortfolios([]);
     } finally {
       setLoading(false);
@@ -69,6 +94,11 @@ export function PortfolioProvider({
     setPortfolios([]);
   };
 
+  // Load assets when app start
+  useEffect(() => {
+    fetchAssets();
+  }, []);
+
   return (
     <PortfolioContext.Provider
       value={{
@@ -76,6 +106,7 @@ export function PortfolioProvider({
         loading,
         portfolios,
         setPortfolios,
+        fetchAssets,
         fetchPortfolio,
         clearPortfolio,
       }}

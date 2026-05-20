@@ -4,6 +4,7 @@ import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Transactions from './components/Transactions';
 import DashboardHome from './components/DashboardHome';
+import { Assets } from './components/Assets';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<DashboardHome />} />
           <Route path="transactions" element={<Transactions />} />
+          <Route path="assets" element={<Assets />} />
         </Route>
       </Routes>
     </Router>
