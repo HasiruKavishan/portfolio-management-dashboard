@@ -135,6 +135,7 @@ export const getPortfolioTransactions = async (
     const transactions = await prisma.transaction.findMany({
       where: {
         portfolioId,
+        status: "ACTIVE",
       },
       include: {
         asset: true,
@@ -150,3 +151,104 @@ export const getPortfolioTransactions = async (
   }
 };
 
+export const updateTransaction = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const transactionId = req.params.transactionId as string;
+    const {
+      quantity,
+      pricePerShare,
+      transactionType,
+    } = req.body;
+
+    const existing = await prisma.transaction.findFirst({
+      where: {
+        id: transactionId,
+      },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    const portfolio = await prisma.portfolio.findFirst({
+      where: {
+        id: existing.portfolioId,
+        userId: req.userId,
+      },
+    });
+
+    if (!portfolio) {
+      return res.status(403).json({
+        message: "Access denied",
+      });
+    }
+
+    await prisma.transaction.update({
+      where: { id: transactionId },
+      data: {
+        status: "REPLACED",
+      },
+    });
+
+    const newTransaction = await prisma.transaction.create({
+      data: {
+        portfolioId: existing.portfolioId,
+        assetId: existing.assetId,
+        transactionType,
+        quantity,
+        pricePerShare,
+        status: "ACTIVE",
+      },
+    });
+
+    const allTransactions = await prisma.transaction.findMany({
+      where: {
+        portfolioId: existing.portfolioId,
+        assetId: existing.assetId,
+        status: "ACTIVE",
+      },
+    });
+
+    let total = new Prisma.Decimal(0);
+
+    for (const tx of allTransactions) {
+      if (tx.transactionType === "BUY") {
+        total = total.add(tx.quantity);
+      } else {
+        total = total.sub(tx.quantity);
+      }
+    }
+
+    await prisma.portfolioAsset.upsert({
+      where: {
+        portfolioId_assetId: {
+          portfolioId: existing.portfolioId,
+          assetId: existing.assetId,
+        },
+      },
+      update: {
+        quantity: total,
+      },
+      create: {
+        portfolioId: existing.portfolioId,
+        assetId: existing.assetId,
+        quantity: total,
+      },
+    });
+
+    return res.json({
+      message: "Transaction updated",
+      transaction: newTransaction,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -58,6 +58,8 @@ model Transaction {
   transactionType String    @map("transaction_type")
   quantity        Decimal
   pricePerShare   Decimal   @db.Decimal(18, 8)
+  status          String    @default("ACTIVE")
+  
   portfolio       Portfolio @relation(fields: [portfolioId], references: [id])
   asset           Asset     @relation(fields: [assetId], references: [id])
 
