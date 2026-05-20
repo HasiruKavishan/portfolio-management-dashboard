@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { usePortfolio } from "../context/PortfolioContext";
 import { api } from "../services/api";
+import toast from "react-hot-toast";
 
 export default function Transactions() {
     const {
@@ -51,8 +52,9 @@ export default function Transactions() {
             await fetchPortfolio();
 
             setEditingTx(null);
+            toast.success("Transaction updated successfully");
         } catch (err) {
-            console.error("Update failed", err);
+            toast.error("Failed to update transaction");
         }
     };
 

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, Link, Outlet } from 'react-router-dom';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface Asset {
     id: number;
@@ -30,8 +31,9 @@ export default function Dashboard() {
 
         try {
             await api.logout();
+            toast.success("Logout successful");
         } catch (err) {
-            console.error('Logout failed:', err);
+            toast.error("Logout failed");
         } finally {
             navigate('/login', { replace: true });
         }

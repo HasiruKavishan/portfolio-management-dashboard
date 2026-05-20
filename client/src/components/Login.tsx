@@ -3,6 +3,7 @@ import { Mail, Lock, ArrowRight, Activity } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePortfolio } from '../context/PortfolioContext';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -22,10 +23,10 @@ export default function Login() {
             await api.login(email, password);
 
             await fetchPortfolio();
-
+            toast.success("Login successful");
             navigate('/dashboard');
         } catch (err: any) {
-            setError(err.message || 'An error occurred. Please try again.');
+            toast.error(err.message || 'An error occurred. Please try again.');
         } finally {
             setIsLoading(false);
         }

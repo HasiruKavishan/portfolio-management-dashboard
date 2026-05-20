@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { usePortfolio, type Portfolio } from '../context/PortfolioContext';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface Props {
     isTradeModalOpen: boolean;
@@ -49,8 +50,9 @@ export const TradeModal = ({
 
             resetForm();
             onClose();
+            toast.success("Transaction created successfully");
         } catch (error) {
-            console.error(error);
+            toast.error("Failed to create transaction");
         }
     };
 

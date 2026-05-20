@@ -6,6 +6,7 @@ import Summary from "./Summary";
 import { TradeModal } from "./TradeModal";
 import Transactions from "./Transactions";
 import { api } from "../services/api";
+import toast from "react-hot-toast";
 
 export default function DashboardHome() {
     const navigate = useNavigate();
@@ -31,8 +32,10 @@ export default function DashboardHome() {
             setPortfolios((prev: any) => [...prev, newPortfolio]);
             setIsPortfolioModalOpen(false);
             setPortfolioName("");
+            toast.success("Portfolio created successfully");
         } catch (error) {
             console.error(error);
+            toast.error("Failed to create portfolio");
         } finally {
             setCreatingPortfolio(false);
         }

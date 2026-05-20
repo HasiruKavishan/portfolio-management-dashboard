@@ -3,6 +3,7 @@ import { Mail, Lock, User, UserPlus, ArrowRight } from 'lucide-react';
 
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 export default function Register() {
     const navigate = useNavigate();
@@ -26,10 +27,10 @@ export default function Register() {
 
         try {
             await api.register(name, email, password);
-
+            toast.success("Registration successful");
             navigate('/login');
         } catch (err: any) {
-            setError(err.message || 'An error occurred. Please try again.');
+            toast.error(err.message || 'An error occurred. Please try again.');
         } finally {
             setIsLoading(false);
         }
