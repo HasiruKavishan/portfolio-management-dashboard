@@ -207,9 +207,15 @@ export function PortfolioProvider({
   }, []);
 
   // Auto select first portfolio
+  // PortfolioContext.tsx — update the existing useEffect
   useEffect(() => {
-    if (portfolios.length > 0 && !selectedPortfolio) {
+    if (portfolios.length === 0) return;
+
+    if (!selectedPortfolio) {
       setSelectedPortfolio(portfolios[0]);
+    } else {
+      const refreshed = portfolios.find(p => p.id === selectedPortfolio.id);
+      if (refreshed) setSelectedPortfolio(refreshed);
     }
   }, [portfolios]);
 

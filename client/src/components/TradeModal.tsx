@@ -96,36 +96,41 @@ export const TradeModal = ({
                         Quantity
                     </label>
                     <input
-                        type="number"
-                        min={0}
-                        value={quantity}
+                        type="text"
+                        inputMode="numeric"
+                        value={quantity === 0 ? "" : quantity}
                         onChange={(e) => {
-                            const value = Number(e.target.value);
-                            setQuantity(value < 0 ? 0 : value);
+                            const raw = e.target.value.replace(/[^0-9]/g, ""); // strip anything not a digit
+                            setQuantity(raw === "" ? 0 : Number(raw));
                         }}
+                        placeholder="0"
                         className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-2 text-white"
                     />
                 </div>
 
                 {/* Buy / Sell */}
-                <div className="flex gap-4">
-                    <label className="flex items-center gap-2 text-white">
+                <div className="flex gap-6">
+
+                    <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="radio"
                             checked={type === 'BUY'}
                             onChange={() => setType('BUY')}
+                            className="accent-emerald-500"
                         />
-                        Buy
+                        <span className="text-emerald-400 font-medium">BUY</span>
                     </label>
 
-                    <label className="flex items-center gap-2 text-white">
+                    <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="radio"
                             checked={type === 'SELL'}
                             onChange={() => setType('SELL')}
+                            className="accent-red-500"
                         />
-                        Sell
+                        <span className="text-red-400 font-medium">SELL</span>
                     </label>
+
                 </div>
 
                 {/* Actions */}
