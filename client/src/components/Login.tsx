@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Lock, ArrowRight, Activity } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePortfolio } from '../context/PortfolioContext';
+import { api } from '../services/api';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -18,21 +19,13 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
+            await api.login(email, password);
 
-            if (res.ok) {
-                await fetchPortfolio();
-                navigate('/dashboard');
-            } else {
-                setError(data.message || 'Login failed');
-            }
-        } catch (err) {
-            setError('An error occurred. Please try again.');
+            await fetchPortfolio();
+
+            navigate('/dashboard');
+        } catch (err: any) {
+            setError(err.message || 'An error occurred. Please try again.');
         } finally {
             setIsLoading(false);
         }

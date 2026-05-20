@@ -9,6 +9,7 @@ import {
     ChartCandlestick
 } from 'lucide-react';
 import { useNavigate, Link, Outlet } from 'react-router-dom';
+import { api } from '../services/api';
 
 interface Asset {
     id: number;
@@ -28,10 +29,7 @@ export default function Dashboard() {
         e.preventDefault();
 
         try {
-            await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include',
-            });
+            await api.logout();
         } catch (err) {
             console.error('Logout failed:', err);
         } finally {

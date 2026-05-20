@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Lock, User, UserPlus, ArrowRight } from 'lucide-react';
 
 import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 
 export default function Register() {
     const navigate = useNavigate();
@@ -22,21 +23,13 @@ export default function Register() {
         }
 
         setIsLoading(true);
-        try {
-            const res = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password })
-            });
-            const data = await res.json();
 
-            if (res.ok && data.userId) {
-                navigate('/login');
-            } else {
-                setError(data.message || 'Registration failed');
-            }
-        } catch (err) {
-            setError('An error occurred. Please try again.');
+        try {
+            await api.register(name, email, password);
+
+            navigate('/login');
+        } catch (err: any) {
+            setError(err.message || 'An error occurred. Please try again.');
         } finally {
             setIsLoading(false);
         }

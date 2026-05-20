@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { usePortfolio, type Portfolio } from '../context/PortfolioContext';
+import { api } from '../services/api';
 
 interface Props {
     isTradeModalOpen: boolean;
@@ -41,19 +42,7 @@ export const TradeModal = ({
             pricePerShare: selectedAsset.currentPrice,
         }
         try {
-
-            const response = await fetch('/api/transactions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                console.error('Error occurred');
-                return;
-            }
+            await api.createTransaction(payload);
 
             await fetchTransactions(portfolio.id);
             await fetchPortfolio();

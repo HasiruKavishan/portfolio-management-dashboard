@@ -37,51 +37,77 @@ export interface Portfolio {
   transactions: Transaction[];
 }
 
+export interface PortfolioSummaryAsset {
+  assetId: string;
+  symbol: string;
+  name: string;
+  quantity: number;
+  avgBuyPrice: number;
+  currentPrice: number;
+  value: number;
+  unrealizedPnL: number;
+}
+
+export interface PortfolioSummary {
+  totalValue: number;
+  totalCost: number;
+  totalPnL: number;
+  roi: number;
+  assets: PortfolioSummaryAsset[];
+}
+
 interface PortfolioContextType {
   assets: Asset[];
   portfolios: Portfolio[];
   transactions: Transaction[];
+
   selectedPortfolio: Portfolio | null;
+  summary: PortfolioSummary | null;
 
   loading: boolean;
 
   setPortfolios: React.Dispatch<React.SetStateAction<Portfolio[]>>;
-  setSelectedPortfolio: React.Dispatch<React.SetStateAction<Portfolio | null>>;
+  setSelectedPortfolio: React.Dispatch<
+    React.SetStateAction<Portfolio | null>
+  >;
 
   fetchAssets: () => Promise<void>;
   fetchPortfolio: () => Promise<void>;
   fetchTransactions: (portfolioId: string) => Promise<void>;
+  fetchSummary: (portfolioId: string) => Promise<void>;
 
   clearPortfolio: () => void;
 }
 
-const PortfolioContext = createContext<PortfolioContextType | undefined>(
-  undefined
-);
+const PortfolioContext = createContext<
+  PortfolioContextType | undefined
+>(undefined);
 
-export function PortfolioProvider({ children }: { children: ReactNode }) {
-  const navigate = useNavigate(); // ✅ FIX 1
+export function PortfolioProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const navigate = useNavigate();
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>(
+    []
+  );
+
   const [selectedPortfolio, setSelectedPortfolio] =
     useState<Portfolio | null>(null);
+
+  const [summary, setSummary] =
+    useState<PortfolioSummary | null>(null);
 
   const [loading, setLoading] = useState(false);
 
   // Auth check
   const checkAuth = async () => {
     try {
-      const res = await fetch('/api/auth/me', {
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        navigate('/login', { replace: true });
-        return false;
-      }
-
+      await api.authMe();
       return true;
     } catch (err) {
       navigate('/login', { replace: true });
@@ -96,9 +122,9 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
       const data = await api.getAssets();
 
-      setAssets(data?.assets || data || []); // ✅ FIX
+      setAssets(data?.assets || data || []);
     } catch (error) {
-      console.error(error);
+      console.error('Fetch assets error:', error);
       setAssets([]);
     } finally {
       setLoading(false);
@@ -112,9 +138,9 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
       const data = await api.getPortfolio();
 
-      setPortfolios(data?.portfolios || data || []); // ✅ FIX
+      setPortfolios(data?.portfolios || data || []);
     } catch (error) {
-      console.error(error);
+      console.error('Fetch portfolios error:', error);
       setPortfolios([]);
     } finally {
       setLoading(false);
@@ -126,41 +152,55 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        `/api/transactions/portfolio/${portfolioId}`,
-        {
-          credentials: 'include', // ✅ FIX
-        }
-      );
+      const data = await api.getTransactions(portfolioId);
 
-      if (!res.ok) throw new Error('Failed to fetch transactions');
-
-      const data = await res.json();
-
-      setTransactions(data?.transactions || data || []);
+      setTransactions(data || []);
     } catch (err) {
-      console.error(err);
+      console.error('Fetch transactions error:', err);
       setTransactions([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Clear
+  // Fetch summary
+  const fetchSummary = async (portfolioId: string) => {
+    try {
+      setLoading(true);
+
+      const data = await api.getPortfolioSummary(
+        portfolioId
+      );
+
+      setSummary(data);
+    } catch (err) {
+      console.error('Fetch summary error:', err);
+      setSummary(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Clear state
   const clearPortfolio = () => {
+    setAssets([]);
     setPortfolios([]);
     setTransactions([]);
     setSelectedPortfolio(null);
+    setSummary(null);
   };
 
   // Initial load
   useEffect(() => {
     const init = async () => {
-      const ok = await checkAuth();
-      if (!ok) return;
+      const authenticated = await checkAuth();
 
-      await fetchAssets();
-      await fetchPortfolio();
+      if (!authenticated) return;
+
+      await Promise.all([
+        fetchAssets(),
+        fetchPortfolio(),
+      ]);
     };
 
     init();
@@ -173,10 +213,11 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     }
   }, [portfolios]);
 
-  // Auto fetch transactions
+  // Fetch data when portfolio changes
   useEffect(() => {
     if (selectedPortfolio?.id) {
       fetchTransactions(selectedPortfolio.id);
+      fetchSummary(selectedPortfolio.id);
     }
   }, [selectedPortfolio]);
 
@@ -186,7 +227,10 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         assets,
         portfolios,
         transactions,
+
         selectedPortfolio,
+        summary,
+
         loading,
 
         setPortfolios,
@@ -195,6 +239,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         fetchAssets,
         fetchPortfolio,
         fetchTransactions,
+        fetchSummary,
 
         clearPortfolio,
       }}
