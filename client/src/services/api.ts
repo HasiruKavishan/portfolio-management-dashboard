@@ -153,4 +153,30 @@ export const api = {
 
     return data;
   },
+
+  async updateTransaction(
+    transactionId: string,
+    payload: {
+      quantity: number;
+      pricePerShare: number;
+      transactionType: "BUY" | "SELL";
+    }
+  ) {
+    const response = await fetch(`/api/transactions/${transactionId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.message || "Failed to update transaction");
+    }
+
+    return data;
+  },
 };
