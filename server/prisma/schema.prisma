@@ -47,6 +47,7 @@ model PortfolioAsset {
   portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
   asset       Asset     @relation(fields: [assetId], references: [id])
 
+  @@unique([portfolioId, assetId])
   @@map("portfolio_assets")
 }
 

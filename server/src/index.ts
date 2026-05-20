@@ -8,6 +8,7 @@ import { errorMiddleware } from "./middleware/error.middleware";
 import portfolioRoutes from "./routes/portfolio.routes";
 import transactionRoutes from "./routes/transaction.routes";
 import assetRoutes from "./routes/asset.routes";
+import portfolioAssertRoutes from "./routes/portfolio_assert.routes";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/portfolios",authMiddleware, portfolioRoutes);
 
 app.use("/api/transactions",authMiddleware, transactionRoutes);
+
+app.use("/api/portfolio-assets",authMiddleware, portfolioAssertRoutes);
 
 app.use("/api/assets", assetRoutes);
 
