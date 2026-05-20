@@ -12,7 +12,7 @@ export const TradeModal = ({
     onClose,
     portfolio,
 }: Props) => {
-    const { assets, setPortfolios } = usePortfolio();
+    const { assets, fetchTransactions, fetchPortfolio } = usePortfolio();
 
     const [asset, setAsset] = useState('');
     const [quantity, setQuantity] = useState(0);
@@ -55,21 +55,8 @@ export const TradeModal = ({
                 return;
             }
 
-            const newTransaction = await response.json();
-
-            setPortfolios((prev) =>
-                prev.map((p) => {
-                    if (p.id !== payload.portfolioId) return p;
-
-                    return {
-                        ...p,
-                        transactions: [
-                            ...(p.transactions || []),
-                            newTransaction,
-                        ],
-                    };
-                })
-            );
+            await fetchTransactions(portfolio.id);
+            await fetchPortfolio();
 
             resetForm();
             onClose();

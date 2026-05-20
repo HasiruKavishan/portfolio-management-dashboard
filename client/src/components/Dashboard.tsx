@@ -26,12 +26,16 @@ export default function Dashboard() {
 
     const handleLogout = async (e: React.MouseEvent) => {
         e.preventDefault();
+
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
         } catch (err) {
             console.error('Logout failed:', err);
         } finally {
-            navigate('/login');
+            navigate('/login', { replace: true });
         }
     };
 

@@ -7,6 +7,7 @@ import {
 } from 'react';
 
 import { api } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 export interface Asset {
   id: string;
@@ -26,12 +27,6 @@ export interface Transaction {
   transactionType: 'BUY' | 'SELL';
   quantity: number;
   pricePerShare: number;
-  asset?: {
-    id: string;
-    name: string;
-    symbol: string;
-    currentPrice: number;
-  };
 }
 
 export interface Portfolio {
@@ -47,6 +42,7 @@ interface PortfolioContextType {
   portfolios: Portfolio[];
   transactions: Transaction[];
   selectedPortfolio: Portfolio | null;
+
   loading: boolean;
 
   setPortfolios: React.Dispatch<React.SetStateAction<Portfolio[]>>;
@@ -59,15 +55,13 @@ interface PortfolioContextType {
   clearPortfolio: () => void;
 }
 
-const PortfolioContext = createContext<
-  PortfolioContextType | undefined
->(undefined);
+const PortfolioContext = createContext<PortfolioContextType | undefined>(
+  undefined
+);
 
-export function PortfolioProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function PortfolioProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate(); // ✅ FIX 1
+
   const [assets, setAssets] = useState<Asset[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -76,12 +70,33 @@ export function PortfolioProvider({
 
   const [loading, setLoading] = useState(false);
 
+  // Auth check
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        navigate('/login', { replace: true });
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      navigate('/login', { replace: true });
+      return false;
+    }
+  };
+
+  // Assets
   const fetchAssets = async () => {
     try {
       setLoading(true);
 
       const data = await api.getAssets();
-      setAssets(data || []);
+
+      setAssets(data?.assets || data || []); // ✅ FIX
     } catch (error) {
       console.error(error);
       setAssets([]);
@@ -90,13 +105,14 @@ export function PortfolioProvider({
     }
   };
 
+  // Portfolios
   const fetchPortfolio = async () => {
     try {
       setLoading(true);
 
       const data = await api.getPortfolio();
 
-      setPortfolios(data || []);
+      setPortfolios(data?.portfolios || data || []); // ✅ FIX
     } catch (error) {
       console.error(error);
       setPortfolios([]);
@@ -105,19 +121,23 @@ export function PortfolioProvider({
     }
   };
 
+  // Transactions
   const fetchTransactions = async (portfolioId: string) => {
     try {
       setLoading(true);
 
       const res = await fetch(
-        `/api/transactions/portfolio/${portfolioId}`
+        `/api/transactions/portfolio/${portfolioId}`,
+        {
+          credentials: 'include', // ✅ FIX
+        }
       );
 
       if (!res.ok) throw new Error('Failed to fetch transactions');
 
       const data = await res.json();
 
-      setTransactions(data || []);
+      setTransactions(data?.transactions || data || []);
     } catch (err) {
       console.error(err);
       setTransactions([]);
@@ -126,19 +146,27 @@ export function PortfolioProvider({
     }
   };
 
-  // Clear state
+  // Clear
   const clearPortfolio = () => {
     setPortfolios([]);
     setTransactions([]);
     setSelectedPortfolio(null);
   };
 
-  // Load assets
+  // Initial load
   useEffect(() => {
-    fetchAssets();
+    const init = async () => {
+      const ok = await checkAuth();
+      if (!ok) return;
+
+      await fetchAssets();
+      await fetchPortfolio();
+    };
+
+    init();
   }, []);
 
-  // Auto select the first portfolio
+  // Auto select first portfolio
   useEffect(() => {
     if (portfolios.length > 0 && !selectedPortfolio) {
       setSelectedPortfolio(portfolios[0]);
@@ -180,9 +208,7 @@ export function usePortfolio() {
   const context = useContext(PortfolioContext);
 
   if (!context) {
-    throw new Error(
-      'usePortfolio must be used within PortfolioProvider'
-    );
+    throw new Error('usePortfolio must be used within PortfolioProvider');
   }
 
   return context;

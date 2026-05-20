@@ -26,8 +26,6 @@ export default function DashboardHome() {
         setSelectedPortfolio
     } = usePortfolio();
 
-    console.log(usePortfolio())
-
     const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
     const [portfolioName, setPortfolioName] = useState("");
     const [creatingPortfolio, setCreatingPortfolio] = useState(false);
