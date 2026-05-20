@@ -52,7 +52,6 @@ export function PortfolioProvider({
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(false);
 
-  
   // Fetch all available assets
   const fetchAssets = async () => {
     try {
@@ -71,7 +70,6 @@ export function PortfolioProvider({
     }
   };
 
-  
   // Fetch user portfolios (Auth required)
   const fetchPortfolio = async () => {
     try {
