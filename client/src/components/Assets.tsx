@@ -23,6 +23,7 @@ export const Assets = () => {
                                 <tr>
                                     <th className="px-6 py-4 font-semibold">Name</th>
                                     <th className="px-6 py-4 font-semibold">Symbol</th>
+                                    <th className="px-6 py-4 font-semibold">Type</th>
                                     <th className="px-6 py-4 font-semibold text-right">
                                         Current Price
                                     </th>
@@ -42,6 +43,12 @@ export const Assets = () => {
                                         <td className="px-6 py-4">
                                             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
                                                 {asset.symbol}
+                                            </span>
+                                        </td>
+
+                                        <td className="px-6 py-4">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-800 text-slate-300 border border-slate-700">
+                                                {asset?.assetType}
                                             </span>
                                         </td>
 

@@ -22,7 +22,27 @@ export default function Transactions() {
             currency: "USD",
         }).format(value);
 
-    // Detect changes
+    const assetTypeTotals = transactions.reduce((acc, tx) => {
+        const assetType = tx.asset.assetType;
+        const total = Number(tx.quantity) * Number(tx.pricePerShare);
+        acc[assetType] = (acc[assetType] || 0) + total;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const grandTotal = Object.values(assetTypeTotals).reduce((a, b) => a + b, 0);
+
+    const assetTypeColors: Record<string, string> = {
+        STOCK: "bg-indigo-500",
+        BOND: "bg-emerald-500",
+        MUTUAL_FUND: "bg-amber-500",
+    };
+
+    const assetTypeTextColors: Record<string, string> = {
+        STOCK: "text-indigo-400",
+        BOND: "text-emerald-400",
+        MUTUAL_FUND: "text-amber-400",
+    };
+
     const hasChanges =
         editingTx &&
         (Number(editingTx.quantity) !== quantity ||
@@ -96,12 +116,9 @@ export default function Transactions() {
 
                                         {/* TYPE */}
                                         <td className="px-6 py-4">
-                                            <span
-                                                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${tx.transactionType === "BUY"
-                                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                        : "bg-red-500/10 text-red-400 border-red-500/20"
-                                                    }`}
-                                            >
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${tx.transactionType === "BUY"
+                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
                                                 {tx.transactionType}
                                             </span>
                                         </td>
@@ -110,23 +127,9 @@ export default function Transactions() {
                                         <td className="px-6 py-4 font-medium text-white">
                                             {tx.asset.name} ({tx.asset.symbol})
                                         </td>
-
-                                        {/* QUANTITY */}
-                                        <td className="px-6 py-4 text-right font-medium text-white">
-                                            {quantityVal}
-                                        </td>
-
-                                        {/* PRICE */}
-                                        <td className="px-6 py-4 text-right text-slate-300">
-                                            {formatCurrency(priceVal)}
-                                        </td>
-
-                                        {/* TOTAL */}
-                                        <td className="px-6 py-4 text-right font-bold text-white">
-                                            {formatCurrency(quantityVal * priceVal)}
-                                        </td>
-
-                                        {/* ACTIONS */}
+                                        <td className="px-6 py-4 text-right font-medium text-white">{quantityVal}</td>
+                                        <td className="px-6 py-4 text-right text-slate-300">{formatCurrency(priceVal)}</td>
+                                        <td className="px-6 py-4 text-right font-bold text-white">{formatCurrency(quantityVal * priceVal)}</td>
                                         <td className="px-6 py-4 text-right">
                                             <button
                                                 onClick={() => openEdit(tx)}
@@ -141,6 +144,45 @@ export default function Transactions() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* ASSET TYPE BREAKDOWN */}
+                {transactions.length > 0 && (
+                    <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+                        <h3 className="text-white font-semibold text-lg">Asset Type Breakdown</h3>
+
+                        {/* Progress Bar */}
+                        <div className="flex h-3 rounded-full overflow-hidden gap-0.5">
+                            {Object.entries(assetTypeTotals).map(([type, total]) => (
+                                <div
+                                    key={type}
+                                    className={`${assetTypeColors[type] ?? "bg-slate-500"} transition-all`}
+                                    style={{ width: `${(total / grandTotal) * 100}%` }}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Legend */}
+                        <div className="flex flex-wrap gap-6">
+                            {Object.entries(assetTypeTotals).map(([type, total]) => {
+                                const percentage = ((total / grandTotal) * 100).toFixed(1);
+                                return (
+                                    <div key={type} className="flex items-center gap-3">
+                                        <span className={`w-3 h-3 rounded-full ${assetTypeColors[type] ?? "bg-slate-500"}`} />
+                                        <div>
+                                            <p className={`text-sm font-semibold ${assetTypeTextColors[type] ?? "text-slate-400"}`}>
+                                                {type}
+                                            </p>
+                                            <p className="text-xs text-slate-400">
+                                                {formatCurrency(total)} · {percentage}%
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
             </main>
 
             {/* EDIT MODAL */}
