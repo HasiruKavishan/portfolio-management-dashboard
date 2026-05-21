@@ -24,6 +24,9 @@ A full-stack portfolio management application built with:
 ## 🐳 Run with Docker
 
 ```bash
+
+cp server/.env.example server/.env
+
 docker compose up -d --build
 
 docker compose exec server npx prisma migrate deploy
@@ -37,8 +40,6 @@ docker compose exec server npx prisma migrate deploy
 ```bash
 
 ./server/scripts/seed.sh
-
-cp server/.env.example server/.env
 
 ```
 
