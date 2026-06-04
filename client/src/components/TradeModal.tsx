@@ -14,9 +14,12 @@ export const TradeModal = ({
     onClose,
     portfolio,
 }: Props) => {
-    const { assets, fetchTransactions, fetchPortfolio } = usePortfolio();
+    const { assets,rates,fetchTransactions, fetchPortfolio } = usePortfolio();
+
+    console.log("Rates in TradeModal:", rates);
 
     const [asset, setAsset] = useState('');
+    const [currency, setCurrency] = useState('');
     const [quantity, setQuantity] = useState(0);
     const [type, setType] = useState<'BUY' | 'SELL'>('BUY');
 
@@ -84,9 +87,26 @@ export const TradeModal = ({
                         className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-2 text-white"
                     >
                         <option value="">Select Asset</option>
-                        {assets?.map((a: any) => (
-                            <option key={a.symbol} value={a.symbol}>
+                        {assets?.map((a: any, index) => (
+                            <option key={index} value={a.symbol}>
                                 {a.name} ({a.symbol})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Currency Dropdown */}
+                <div>
+                    <label className="text-xs text-slate-400">Currency</label>
+                    <select
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value)}
+                        className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-2 text-white"
+                    >
+                        <option value="">Select Currency</option>
+                        {rates?.map((rate: any, index) => (
+                            <option key={index} value={rate.currency}>
+                                {rate.currency} ({rate.rate})
                             </option>
                         ))}
                     </select>

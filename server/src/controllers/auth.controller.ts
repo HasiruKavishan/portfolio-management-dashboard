@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { env } from "../config/env";
-import { prisma } from "../config/prisma";
 import { AuthRequest } from "../middleware/auth.middleware";
+import { findMe, userLogin, userRegister } from "../services/auth.service";
 
 export const register = async (
     req: Request,
@@ -17,16 +14,8 @@ export const register = async (
             return res.status(400).json({ message: "All fields required" });
         }
 
-        const existingUser = await prisma.user.findUnique({ where: { email } });
-        if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
-        }
 
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        const user = await prisma.user.create({
-            data: { name, email, passwordHash },
-        });
+        const user = await userRegister({ name, email, password });
 
         return res.status(201).json({
             message: "User created successfully",
@@ -49,17 +38,7 @@ export const login = async (
             return res.status(400).json({ message: "All fields required" });
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) {
-            return res.status(400).json({ message: "Invalid credentials" });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Invalid credentials" });
-        }
-
-        const token = jwt.sign({ userId: user.id }, env.JWT_SECRET as string, { expiresIn: "1d" });
+        const token = await userLogin({ email, password });
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -93,27 +72,20 @@ export const logout = (
 
 export const me = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-    const userId = req.userId;
+        const userId: string = req.userId as string;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    });
+        const user = await findMe(userId);
 
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+            });
+        }
+
+        return res.json({
+            user,
+        });
+    } catch (error) {
+        next(error)
     }
-
-    return res.json({
-      user,
-    });
-  } catch (error) {
-    next(error)
-  }
 }

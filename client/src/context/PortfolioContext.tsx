@@ -46,6 +46,7 @@ export interface PortfolioSummary {
 
 interface PortfolioContextType {
   assets: Asset[];
+  rates: any[];
   portfolios: Portfolio[];
   transactions: Transaction[];
 
@@ -60,6 +61,7 @@ interface PortfolioContextType {
   >;
 
   fetchAssets: () => Promise<void>;
+  fetchRates: () => Promise<void>;
   fetchPortfolio: () => Promise<void>;
   fetchTransactions: (portfolioId: string) => Promise<void>;
   fetchSummary: (portfolioId: string) => Promise<void>;
@@ -79,6 +81,7 @@ export function PortfolioProvider({
   const navigate = useNavigate();
 
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [rates, setRates] = useState<any[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] =
@@ -115,6 +118,19 @@ export function PortfolioProvider({
       setLoading(false);
     }
   };
+
+  const fetchRates = async () => {
+    try {
+      setLoading(true);
+
+      const data = await api.getRates();
+
+      setRates(data || []);
+
+    } catch (error) {
+      console.error('fetch error rates', error)
+    }
+  }
 
   // Portfolios
   const fetchPortfolio = async () => {
@@ -185,6 +201,7 @@ export function PortfolioProvider({
       await Promise.all([
         fetchAssets(),
         fetchPortfolio(),
+        fetchRates(),
       ]);
     };
 
@@ -227,6 +244,7 @@ export function PortfolioProvider({
     <PortfolioContext.Provider
       value={{
         assets,
+        rates,
         portfolios,
         transactions,
 
@@ -240,6 +258,7 @@ export function PortfolioProvider({
 
         fetchAssets,
         fetchPortfolio,
+        fetchRates,
         fetchTransactions,
         fetchSummary,
 

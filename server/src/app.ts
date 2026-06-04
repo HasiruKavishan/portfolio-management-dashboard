@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.routes";
 import portfolioRoutes from "./routes/portfolio.routes";
 import transactionRoutes from "./routes/transaction.routes";
 import assetRoutes from "./routes/asset.routes";
+import rateRoutes from "./routes/rate.routes";
 import portfolioAssertRoutes from "./routes/portfolio_assert.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 
@@ -32,6 +33,7 @@ app.use("/api/portfolios", authMiddleware, portfolioRoutes);
 app.use("/api/transactions", authMiddleware, transactionRoutes);
 app.use("/api/portfolio-assets", authMiddleware, portfolioAssertRoutes);
 app.use("/api/assets", assetRoutes);
+app.use("/api/rates", rateRoutes);
 
 app.get("/api/test", authMiddleware, (req, res) => {
   res.json({ message: "You are authenticated..." });

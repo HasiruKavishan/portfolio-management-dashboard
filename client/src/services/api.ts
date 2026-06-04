@@ -25,6 +25,18 @@ export const api = {
     return response.json();
   },
 
+  async getRates() {
+    const response = await fetch('/api/rates', {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch rates');
+    }
+
+    return response.json();
+  },
+
   getPortfolioSummary: async (portfolioId: string) => {
     const res = await fetch(`/api/portfolios/${portfolioId}/summary`,
       {

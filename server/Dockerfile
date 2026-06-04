@@ -23,6 +23,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-EXPOSE 5000
+EXPOSE 5005
 
 CMD ["node", "dist/index.js"]
