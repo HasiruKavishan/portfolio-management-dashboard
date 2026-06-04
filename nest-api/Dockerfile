@@ -8,8 +8,13 @@ RUN npm install
 
 COPY . .
 
+# generate prisma client
 RUN npx prisma generate
+
+# build NestJS app
+RUN npm run build
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "start:dev"  ]
+# production start
+CMD ["npm", "run", "start:prod"]
